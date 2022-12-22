@@ -1,0 +1,35 @@
+# --------------------------------
+# Ethan Shearer
+# 2022-22-12
+# Setup Firewalld program for fivem
+# MIT License
+# --------------------------------
+
+---
+# tasks file for firewalld
+
+- name: Install firewalld program.
+  package: # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/package_module.html
+    name: firewalld # Name of the package to install.
+    state: present # Whether the package should be present or absent on the target hosts. If state is latest, the latest version of the package will be installed.
+
+- name: Ensure firewalld is running and enabled.
+  service: # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+    name: firewalld # Name of the service to manage.
+    state: started # Whether the service should be running or not.
+    enabled: yes # Whether the service should start on boot. B{Note}: This option is ignored on OpenBSD, as OpenBSD uses I{rc.d} to manage services.
+  notify: restart firewalld # https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#handlers-running-operations-on-change
+
+- name: Configure ports for firewalld
+  firewall: # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/firewall_module.html
+    port: "{{ item }}" # Port to open or close. In this case, it is the item in the list.
+    state: enabled # Whether the port should be enabled or disabled.
+    permanent: yes # Whether the rule should be permanent or not.
+    immediate: yes # Whether the rule should be applied immediately or not.
+  with_items: # https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#looping-over-a-simple-list
+    - "{{ ssh_port }}/tcp"
+    - "{{ server_port }}/tcp"
+    - "{{ server_port }}/udp"
+    - "{{ txadmin_port }}/tcp"
+    - "{{ txadmin_port }}/udp"
+  notify: restart firewalld # https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html#handlers-running-operations-on-change

@@ -1,0 +1,4 @@
+---
+# vars file for sshd_config
+
+banner_location: "/etc/banner.txt"

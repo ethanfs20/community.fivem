@@ -1,0 +1,10 @@
+
+---
+# vars file for fivem
+user_name: "fivem"
+create_user: true
+home_dir: /home/fivem
+target_directory: /home/fivem/server-data
+package_url: https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/5848-4f71128ee48b07026d6d7229a60ebc5f40f2b9db/fx.tar.xz
+package_name: fx.tar.xz
+repo_url: https://github.com/citizenfx/cfx-server-data.git

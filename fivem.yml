@@ -1,0 +1,7 @@
+---
+- name: run the fivem role
+  hosts: localhost
+  become: yes
+  roles:
+    - fivem
+

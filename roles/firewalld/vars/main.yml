@@ -1,0 +1,6 @@
+---
+# vars file for firewalld
+
+ssh_port: 555
+server_port: 30120
+txadmin_port: 30121

@@ -1,0 +1,7 @@
+---
+- name: run the firewalld role
+  hosts: localhost
+  become: yes
+  roles:
+    - firewalld
+

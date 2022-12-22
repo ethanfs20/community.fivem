@@ -1,0 +1,68 @@
+# ------------
+# Ethan Shearer
+# 2022-21-12
+# This file contains the tasks that will be run when the role is called.
+# MIT License
+# ------------
+---
+# tasks file for fivem
+
+- name: Create user
+  user: # https://docs.ansible.com/ansible/latest/modules/user_module.html
+    name: "{{ user_name }}" # The name of the user to create.
+    shell: /bin/bash # The shell to use for the user.
+    state: present # Whether the user should exist or not.
+    createhome: yes # Whether the user should have a home directory or not.
+    home: "{{ home_dir }}" # The home directory of the user.
+    system: no # Whether the user should be a system user or not.
+  when: create_user # Only run this task if create_user is true.
+
+- name: Create the target directory 
+  file: # https://docs.ansible.com/ansible/latest/modules/file_module.html
+    path: "{{ target_directory }}" # Path to the directory which we should work out of. Stored in ../vars/main.yml
+    state: directory # Whether the directory should exist or not.
+    owner: fivem # The user that should own the directory.
+    group: fivem # The group that should own the directory.
+    mode: 0755 # The permissions the directory should have.
+
+- name: Download server artifacts
+  get_url: # https://docs.ansible.com/ansible/latest/modules/get_url_module.html
+    url: "{{ package_url }}" # The URL to download. Stored in ../vars/main.yml
+    dest: "{{ target_directory }}/{{ package_name }}" # The destination file path for the download. Stored in ../vars/main.yml
+    owner: fivem # The user that should own the file.
+    group: fivem # The group that should own the file.
+    mode: 0644 # The permissions the file should have.
+
+- name: Extract server artifacts to target directory
+  unarchive: # https://docs.ansible.com/ansible/latest/modules/unarchive_module.html
+    src: "{{ target_directory }}/{{ package_name }}" # The source file to extract. Stored in ../vars/main.yml
+    dest: "{{ target_directory }}" # The destination directory to extract to. Stored in ../vars/main.yml
+    remote_src: yes # If the src file is located on the remote server.
+    owner: fivem # The user that should own the file.
+    group: fivem # The group that should own the file.
+    mode: 0755 # The permissions the file should have.
+
+- name: Clone the resources repository to target directory
+  git: # https://docs.ansible.com/ansible/latest/modules/git_module.html
+    repo: "{{ repo_url }}" # The URL of the repository to clone. Stored in ../vars/main.yml
+    dest: "{{ target_directory }}/resources_old" # The destination directory to clone to. Stored in ../vars/main.yml
+    force: yes # If yes, and dest is not an empty directory, it will be forcibly overwritten.
+
+- name: CD into resource_old and move resources to target_directory # https://docs.ansible.com/ansible/latest/modules/shell_module.html
+  shell: "mv {{ target_directory }}/resources_old/resources {{ target_directory }}" # Move the resources directory from resources_old to target_directory
+ 
+- name: Move server.cfg to target_directory
+  template: # https://docs.ansible.com/ansible/latest/modules/template_module.html
+    src: server.cfg.j2 # The source file to use for the template.
+    dest: "{{ target_directory }}/server.cfg" # The destination file to write the template to.
+    owner: fivem # The user that should own the file.
+    group: fivem # The group that should own the file.
+    mode: 0644 # The permissions the file should have.
+
+- name: Clean up multiple old dirs
+  file: # https://docs.ansible.com/ansible/latest/modules/file_module.html
+    path: "{{ item }}" # The path to the directory which we should work out of.
+    state: absent # Whether the directory should exist or not.
+  with_items: # https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#looping-over-items
+    - "{{ target_directory }}/resources_old" # The path to the directory which we should work out of.
+    - "{{ target_directory }}/{{ package_name }}" # The path to the directory which we should work out of.

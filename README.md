@@ -29,3 +29,4 @@ Author Information
 ------------------
 
 Ethan Shearer  https://github.com/ethanfs20/
+https://discord.gg/u48hWutrey
